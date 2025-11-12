@@ -21,7 +21,7 @@ export default function Navbar() {
     <nav
       className={`fixed z-50 w-full transition-all duration-500 ease-in-out ${
         scrolled
-          ? "top-5 left-1/2 -translate-x-1/2 w-11/12 md:w-3/4 lg:w-2/3 h-16 rounded-2xl backdrop-blur-lg bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 shadow-2xl border border-gray-700/50"
+          ? "top-5 left-1/2 -translate-x-1/2 w-11/12 md:w-3/4 lg:w-2/3 h-16 rounded-2xl backdrop-blur-lg bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 shadow-2xl  border-gray-700/50"
           : "top-0 left-0 w-full h-20 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-2xl"
       }`}
     >
