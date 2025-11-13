@@ -1,5 +1,8 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createFigureOrder } from "@/lib/orders";
 
 export default function OrderForm3D() {
   const [formData, setFormData] = useState({
@@ -15,6 +18,10 @@ export default function OrderForm3D() {
   const [imagePreview, setImagePreview] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef(null);
+  const paymentRedirectUrl = "/payment";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -49,15 +56,23 @@ export default function OrderForm3D() {
     }
   }, [currentStep, maxStep]);
 
-  const sizes = [
-    { size: "10 cm", price: "1.850 TL" },
-    { size: "15 cm", price: "2.999 TL" },
-    { size: "17 cm", price: "2.300 TL" },
-    { size: "20 cm", price: "3.999 TL" },
-    { size: "24 cm", price: "2.800 TL" },
-    { size: "25 cm", price: "4.999 TL" },
-    { size: "30-34 cm", price: "3.200 TL" },
-  ];
+  const sizes = useMemo(
+    () => [
+      { size: "10 cm", price: "1.850 TL" },
+      { size: "15 cm", price: "2.999 TL" },
+      { size: "17 cm", price: "2.300 TL" },
+      { size: "20 cm", price: "3.999 TL" },
+      { size: "24 cm", price: "2.800 TL" },
+      { size: "25 cm", price: "4.999 TL" },
+      { size: "30-34 cm", price: "3.200 TL" },
+    ],
+    []
+  );
+
+  const selectedSizeDetails = useMemo(
+    () => sizes.find((item) => item.size === formData.size),
+    [formData.size, sizes]
+  );
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -71,11 +86,70 @@ export default function OrderForm3D() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
-    alert("Siparişiniz alındı! En kısa sürede sizinle iletişime geçeceğiz.");
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+
+    if (isSubmitting) return;
+
+    if (formRef.current && !formRef.current.reportValidity()) {
+      return;
+    }
+
+    if (!formData.image) {
+      alert("Lütfen siparişiniz için bir görsel yükleyin.");
+      return;
+    }
+
+    if (!formData.size) {
+      alert("Lütfen bir figür boyutu seçin.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const order = await createFigureOrder({
+        imageFile: formData.image,
+        size: formData.size,
+        price: selectedSizeDetails?.price || null,
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        notes: formData.notes,
+      });
+
+      if (typeof window !== "undefined") {
+        const orderSummaryPayload = {
+          ...order,
+          productLabel: order.product?.size
+            ? `3D Figür (${order.product.size})`
+            : "3D Figür",
+          displayImage: order.image?.url || imagePreview,
+        };
+
+        try {
+          sessionStorage.setItem(
+            "filamentbiblo3d-order",
+            JSON.stringify(orderSummaryPayload)
+          );
+        } catch (error) {
+          console.error(
+            "Order summary could not be saved to sessionStorage:",
+            error
+          );
+        }
+      }
+
+      router.push(paymentRedirectUrl);
+    } catch (error) {
+      console.error("Error creating 3D order:", error);
+      alert(
+        "Siparişiniz kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const nextStep = () => {
@@ -127,7 +201,7 @@ export default function OrderForm3D() {
         })}
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+      <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl mx-auto">
         {/* Step 1: Image Upload */}
         {currentStep === 1 && (
           <div className="space-y-6">
@@ -348,14 +422,23 @@ export default function OrderForm3D() {
               </button>
               <button
                 type={isDesktop ? "button" : "submit"}
-                onClick={isDesktop ? nextStep : undefined}
-                className={`px-8 py-3 rounded-full font-bold transition-all duration-300 ${
+                onClick={
+                  isDesktop
+                    ? () => {
+                        if (formRef.current?.reportValidity()) {
+                          nextStep();
+                        }
+                      }
+                    : undefined
+                }
+                disabled={isSubmitting}
+                className={`px-8 py-3 rounded-full font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                   isDesktop
                     ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-xl"
                     : "bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-xl hover:shadow-green-500/30"
                 }`}
               >
-                {isDesktop ? "Ödemeye Geç →" : "Siparişi Tamamla"}
+                {isDesktop ? "Ödemeye Geç →" : isSubmitting ? "Gönderiliyor..." : "Siparişi Tamamla"}
               </button>
             </div>
           </div>
@@ -364,55 +447,83 @@ export default function OrderForm3D() {
         {/* Step 4: Payment (Desktop Only) */}
         {isDesktop && currentStep === 4 && (
           <div className="space-y-6">
-            <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50">
-              <h4 className="text-xl font-bold text-white mb-4">
-                Adım 4: Ödeme
-              </h4>
-              <div className="space-y-4 text-gray-300">
-                <p>
-                  Siparişinizi tamamlamak için tercih ettiğiniz ödeme yöntemini seçin.
-                  Temsilcimiz kısa süre içinde sizinle iletişime geçerek ödemeyi
-                  onaylayacaktır.
-                </p>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="rounded-xl border border-gray-700 bg-gray-900/50 p-4 text-center">
-                    <p className="text-white font-semibold">Havale/EFT</p>
-                    <p className="text-sm text-gray-400">
-                      Güvenli banka transferi ile ödeme.
+            <div className="rounded-2xl border border-gray-700/50 bg-gray-900/60 p-6 shadow-lg shadow-purple-500/10">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+                {imagePreview && (
+                  <div className="mx-auto w-full max-w-xs overflow-hidden rounded-2xl border border-white/10 bg-black/60 p-4 sm:mx-0">
+                    <img
+                      src={imagePreview}
+                      alt="Sipariş önizlemesi"
+                      className="h-48 w-full rounded-xl object-cover"
+                    />
+                    <p className="mt-3 text-center text-sm text-gray-400">Yüklediğiniz görsel</p>
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-5">
+                  <div>
+                    <h4 className="text-xl font-bold text-white">Sipariş Özeti</h4>
+                    <p className="mt-2 text-sm text-gray-400">
+                      Ödeme sayfasında bilgilerinizi tekrar doğrulayabilir ve işlemi güvenle tamamlayabilirsiniz.
                     </p>
                   </div>
-                  <div className="rounded-xl border border-gray-700 bg-gray-900/50 p-4 text-center">
-                    <p className="text-white font-semibold">Kredi Kartı</p>
-                    <p className="text-sm text-gray-400">
-                      Online link ile hızlı ödeme.
-                    </p>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4">
+                      <p className="text-xs uppercase tracking-widest text-gray-400">Seçtiğiniz Boyut</p>
+                      <p className="mt-2 text-lg font-semibold text-white">
+                        {formData.size || "Belirtilmedi"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4">
+                      <p className="text-xs uppercase tracking-widest text-gray-400">Toplam Tutar</p>
+                      <p className="mt-2 text-lg font-semibold text-white">
+                        {selectedSizeDetails?.price || "Belirtilmedi"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-4 sm:col-span-2">
+                      <p className="text-xs uppercase tracking-widest text-gray-400">Teslimat Bilgileri</p>
+                      <p className="mt-2 text-sm text-gray-200">
+                        {formData.name || "İsim belirtilmedi"}
+                      </p>
+                      <p className="text-sm text-gray-200">
+                        {formData.phone || "Telefon belirtilmedi"}
+                      </p>
+                      <p className="mt-1 text-sm text-gray-400">
+                        {formData.address ? `${formData.address} • ${formData.city || ""}` : "Adres belirtilmedi"}
+                      </p>
+                      {formData.notes && (
+                        <p className="mt-2 text-xs text-gray-500">Not: {formData.notes}</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="rounded-xl border border-gray-700 bg-gray-900/50 p-4 text-center">
-                    <p className="text-white font-semibold">Kapıda Ödeme</p>
-                    <p className="text-sm text-gray-400">
-                      Teslimatta nakit veya kart ile ödeme.
+
+                  <div className="rounded-xl border border-white/10 bg-black/40 p-4">
+                    <p className="text-xs uppercase tracking-widest text-gray-400">Ödeme Adımı</p>
+                    <p className="mt-2 text-sm text-gray-300">
+                      Ödeme sayfasına yönlendirildiğinizde sipariş özetiniz otomatik olarak paylaşılır. Herhangi bir sorunuz
+                      olursa destek ekibimizle iletişime geçebilirsiniz.
                     </p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-400">
-                  Ödeme bilgilerini gönderdiğinizde siparişiniz işleme alınacaktır.
-                </p>
               </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-8 py-3 bg-gray-700 text-white rounded-full font-bold hover:bg-gray-600 transition-all duration-300"
+                className="px-8 py-3 rounded-full bg-gray-700 text-white font-bold transition-all duration-300 hover:bg-gray-600"
               >
                 ← Önceki Adım
               </button>
               <button
-                type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-full font-bold hover:shadow-xl hover:shadow-green-500/30 transition-all duration-300"
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="inline-flex items-center justify-center rounded-full bg-linear-to-r from-purple-600 to-blue-600 px-10 py-3 font-bold text-white shadow-lg shadow-purple-500/30 transition-transform duration-300 hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Siparişi Tamamla
+                {isSubmitting ? "Gönderiliyor..." : "Ödeme Sayfasına Git →"}
               </button>
             </div>
           </div>

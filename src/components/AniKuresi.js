@@ -1,8 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Carousel from "./Carousel";
+import { createAniKuresiOrder } from "@/lib/orders";
 
 export default function AniKuresi({ images }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     type: "",
     name: "",
@@ -14,6 +17,24 @@ export default function AniKuresi({ images }) {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const formRef = useRef(null);
+
+  const packageDetails = useMemo(
+    () => ({
+      basic: {
+        label: "Sadece Anı Küresi",
+        price: "₺2.500",
+      },
+      premium: {
+        label: "Anı Küresi + Hoparlör",
+        price: "₺3.500",
+      },
+    }),
+    []
+  );
+
+  const selectedPackage = formData.type ? packageDetails[formData.type] : null;
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -27,10 +48,68 @@ export default function AniKuresi({ images }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    alert("Anı Küresi siparişiniz alındı! En kısa sürede sizinle iletişime geçeceğiz.");
+
+    if (isSubmitting) return;
+
+    if (formRef.current && !formRef.current.reportValidity()) {
+      return;
+    }
+
+    if (!formData.type) {
+      alert("Lütfen bir anı küresi paketi seçin.");
+      return;
+    }
+
+    if (!formData.image) {
+      alert("Lütfen bir fotoğraf veya video yükleyin.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const order = await createAniKuresiOrder({
+        mediaFile: formData.image,
+        packageType: formData.type,
+        price: selectedPackage?.price || null,
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        notes: formData.notes,
+      });
+
+      if (typeof window !== "undefined") {
+        const orderSummaryPayload = {
+          ...order,
+          productLabel: selectedPackage?.label || "Anı Küresi",
+          displayImage: order.image?.url || imagePreview,
+        };
+
+        try {
+          sessionStorage.setItem(
+            "filamentbiblo3d-order",
+            JSON.stringify(orderSummaryPayload)
+          );
+        } catch (error) {
+          console.error(
+            "Order summary could not be saved to sessionStorage:",
+            error
+          );
+        }
+      }
+
+      router.push("/payment");
+    } catch (error) {
+      console.error("Error creating Ani Küresi order:", error);
+      alert(
+        "Siparişiniz kaydedilirken bir sorun oluştu. Lütfen tekrar deneyin."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -168,7 +247,7 @@ export default function AniKuresi({ images }) {
           Anı Küresi Siparişi Oluştur
         </h3>
 
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
           {/* Product Selection */}
           <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50">
             <h4 className="text-xl font-bold text-white mb-4">Ürün Seçimi</h4>
@@ -298,9 +377,10 @@ export default function AniKuresi({ images }) {
           <div className="text-center">
             <button
               type="submit"
-              className="px-12 py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105"
+              disabled={isSubmitting}
+              className="px-12 cursor-pointer py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-full font-bold text-lg hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-300 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Siparişi Tamamla 💝
+              {isSubmitting ? "Gönderiliyor..." : "Ödeme Sayfasına Git 💝"}
             </button>
           </div>
         </form>
