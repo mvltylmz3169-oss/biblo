@@ -4,12 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { uploadOrderReceipt } from "@/lib/orders";
 
-const IBAN_INFORMATION = {
-  accountName: "Filamentbiblo3D Tasarım ve Üretim Ltd. Şti.",
-  iban: "TR12 3456 7890 1234 5678 0001 23",
-  bank: "Bank Filamento A.Ş.",
-  branch: "Maslak Kurumsal Şube",
-};
+import { getAdminSettings } from "@/lib/adminStorage";
 
 export default function PaymentPage() {
   const [orderSummary, setOrderSummary] = useState(null);
@@ -17,6 +12,12 @@ export default function PaymentPage() {
   const [uploadPreview, setUploadPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [ibanInfo, setIbanInfo] = useState({
+    accountName: "Filamentbiblo3D Tasarım ve Üretim Ltd. Şti.",
+    iban: "TR12 3456 7890 1234 5678 0001 23",
+    bank: "Bank Filamento A.Ş.",
+    branch: "Maslak Kurumsal Şube",
+  });
 
   const gridBackground =
     "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cdefs%3E%3Cpattern id=\"grid\" width=\"60\" height=\"60\" patternUnits=\"userSpaceOnUse\"%3E%3Cpath d=\"M 60 0 L 0 0 0 60\" fill=\"none\" stroke=\"rgba(255,255,255,0.03)\" stroke-width=\"1\"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=\"100%25\" height=\"100%25\" fill=\"url(%23grid)\"/%3E%3C/svg%3E')";
@@ -54,6 +55,25 @@ export default function PaymentPage() {
     } catch (error) {
       console.error("Unable to read order summary from sessionStorage:", error);
     }
+  }, []);
+
+  useEffect(() => {
+    const loadIbanSettings = async () => {
+      try {
+        const settings = await getAdminSettings();
+        setIbanInfo({
+          accountName: settings.authorizedName || "Filamentbiblo3D Tasarım ve Üretim Ltd. Şti.",
+          iban: settings.iban || "TR12 3456 7890 1234 5678 0001 23",
+          bank: settings.bank || "Bank Filamento A.Ş.",
+          branch: settings.branch || "Maslak Kurumsal Şube",
+        });
+      } catch (error) {
+        console.error("Error loading IBAN settings:", error);
+        // Keep default values if loading fails
+      }
+    };
+
+    loadIbanSettings();
   }, []);
 
   const hasReceipt = useMemo(() => Boolean(receiptFile), [receiptFile]);
@@ -413,19 +433,19 @@ export default function PaymentPage() {
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-5">
                   <p className="text-xs uppercase tracking-widest text-gray-400">Hesap Sahibi</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{IBAN_INFORMATION.accountName}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{ibanInfo.accountName}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-5">
                   <p className="text-xs uppercase tracking-widest text-gray-400">IBAN</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{IBAN_INFORMATION.iban}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{ibanInfo.iban}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-5">
                   <p className="text-xs uppercase tracking-widest text-gray-400">Banka</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{IBAN_INFORMATION.bank}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{ibanInfo.bank}</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/40 p-5">
                   <p className="text-xs uppercase tracking-widest text-gray-400">Şube</p>
-                  <p className="mt-2 text-sm font-semibold text-white">{IBAN_INFORMATION.branch}</p>
+                  <p className="mt-2 text-sm font-semibold text-white">{ibanInfo.branch}</p>
                 </div>
               </div>
 
