@@ -60,11 +60,9 @@ export default function OrderForm3D() {
     () => [
       { size: "10 cm", price: "1.850 TL" },
       { size: "15 cm", price: "2.999 TL" },
-      { size: "17 cm", price: "2.300 TL" },
       { size: "20 cm", price: "3.999 TL" },
-      { size: "24 cm", price: "2.800 TL" },
       { size: "25 cm", price: "4.999 TL" },
-      { size: "30-34 cm", price: "3.200 TL" },
+     
     ],
     []
   );
@@ -161,7 +159,7 @@ export default function OrderForm3D() {
   };
 
   return (
-    <div id="siparis-3d" className="bg-gradient-to-r  from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-3xl p-8 border border-gray-700/50">
+    <div id="siparis-3d" className="bg-gradient-to-r  from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-3xl p-4 border border-gray-700/50">
       <h3 className="text-3xl font-bold text-white mb-8 text-center">
         3D Figür Siparişinizi Oluşturun
       </h3>
@@ -315,11 +313,11 @@ export default function OrderForm3D() {
               </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-2 text-sm">
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-8 py-3 bg-gray-700 text-white rounded-full font-bold hover:bg-gray-600 transition-all duration-300"
+                className="px-3 py-3 bg-gray-700 text-white rounded-full font-bold hover:bg-gray-600 transition-all duration-300"
               >
                 ← Önceki Adım
               </button>
@@ -327,7 +325,7 @@ export default function OrderForm3D() {
                 type="button"
                 onClick={nextStep}
                 disabled={!formData.size}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-bold hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-full font-bold hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Sonraki Adım →
               </button>
@@ -337,8 +335,8 @@ export default function OrderForm3D() {
 
         {/* Step 3: Shipping Information */}
         {currentStep === 3 && (
-          <div className="space-y-6">
-            <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50">
+          <div className="space-y-2">
+            <div className="bg-gray-800/50 rounded-2xl p-4 border border-gray-700/50">
               <h4 className="text-xl font-bold text-white mb-4">
                 Adım 3: Kargo Bilgileriniz
               </h4>
@@ -412,11 +410,11 @@ export default function OrderForm3D() {
               </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex gap-2  mt-2 text-sm justify-between">
               <button
                 type="button"
                 onClick={prevStep}
-                className="px-8 py-3 bg-gray-700 text-white rounded-full font-bold hover:bg-gray-600 transition-all duration-300"
+                className="px-4 text-sm py-3 bg-gray-700 text-white rounded-full font-bold hover:bg-gray-600 transition-all duration-300"
               >
                 ← Önceki Adım
               </button>
@@ -432,7 +430,7 @@ export default function OrderForm3D() {
                     : undefined
                 }
                 disabled={isSubmitting}
-                className={`px-8 py-3 rounded-full font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`px-4 text-sm py-3 rounded-full font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                   isDesktop
                     ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-xl"
                     : "bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-xl hover:shadow-green-500/30"

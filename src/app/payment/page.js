@@ -414,7 +414,7 @@ export default function PaymentPage() {
 
         <div className="mt-14 lg:flex lg:items-start lg:gap-12">
           <div className="space-y-8 lg:w-[62%] xl:w-[60%]">
-            <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-purple-500/10 backdrop-blur-xl">
+            <section className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-xl shadow-purple-500/10 backdrop-blur-xl">
               <header className="flex flex-col gap-2 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-semibold text-white">IBAN Bilgileri</h2>
@@ -459,7 +459,7 @@ export default function PaymentPage() {
               </div>
             </section>
 
-            <section className="rounded-3xl border border-purple-500/30 bg-purple-500/10 p-8 shadow-2xl shadow-purple-500/20 backdrop-blur-xl">
+            <section className="rounded-3xl border border-purple-500/30 bg-purple-500/10 p-4 shadow-2xl shadow-purple-500/20 backdrop-blur-xl">
               <h2 className="text-xl font-semibold text-white">Dekont Yükleme</h2>
               <p className="mt-2 text-sm text-purple-100">
                 Ödeme dekontunuzu yükleyerek siparişinizi tamamlayın. Elimizde dekontunuz olmadan üretime başlayamıyoruz.
@@ -549,7 +549,7 @@ export default function PaymentPage() {
 
           <aside className="mt-10 space-y-8 lg:mt-0 lg:w-[38%] xl:w-[36%]">
             <div className="space-y-8 lg:sticky lg:top-28">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-xl shadow-purple-500/10 backdrop-blur-xl">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-xl shadow-purple-500/10 backdrop-blur-xl">
                 <h2 className="text-xl font-semibold text-white">Sipariş Özeti</h2>
                 <p className="mt-2 text-sm text-gray-300">
                   Ödemeniz onaylandığında bu özet doğrultusunda üretim sürecinizi başlatacağız.
