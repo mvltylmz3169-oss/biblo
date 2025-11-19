@@ -186,7 +186,7 @@ export default function Home() {
                     <div className="h-12 w-12 rounded-full bg-linear-to-br from-purple-400 to-pink-400"></div>
                     <div>
                       <p className="text-sm font-semibold text-white">İdil & Burak H.</p>
-                      <p className="text-xs uppercase tracking-widest text-gray-400">İstanbul | 2025</p>
+                      <p className="text-xs uppercase tracking-widest text-gray-400">İzmir | 2025</p>
                     </div>
                   </div>
                 </div>
