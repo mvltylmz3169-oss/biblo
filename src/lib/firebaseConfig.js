@@ -1,14 +1,15 @@
 // Firebase Configuration - Client ve Admin için paylaşılan config
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAgE0W-zuSMVnaoVO4ISqmC_tg7csiOVjY",
-  authDomain: "biblo-ba9e7.firebaseapp.com",
-  projectId: "biblo-ba9e7",
-  storageBucket: "biblo-ba9e7.firebasestorage.app",
-  messagingSenderId: "787689888986",
-  appId: "1:787689888986:web:9ec9bfbcd93394dfe7d9e3",
-  measurementId: "G-M23WW6KP0V"
+  apiKey: "AIzaSyDclw_LtgJdCHlMjosSgn7uuV5QhRKhGfk",
+  authDomain: "biblo-ffa4b.firebaseapp.com",
+  projectId: "biblo-ffa4b",
+  storageBucket: "biblo-ffa4b.firebasestorage.app",
+  messagingSenderId: "818389818130",
+  appId: "1:818389818130:web:3eda5e709b6ab93f4b71cb",
+  measurementId: "G-P0NJ6CP2YE"
 };
+
 
 // Service Account Key için - Firebase Console'dan alın (OPSIYONEL - Test için gerekli değil)
 // https://console.firebase.google.com/project/toki-38c58/settings/serviceaccounts/adminsdk
