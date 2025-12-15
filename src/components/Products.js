@@ -115,7 +115,7 @@ export default function Products() {
                     Kişiye Özel 3D Figürler
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Filamentbiblo3D olarak, sevdiklerinizle paylaştığınız özel anları 3D baskı figürlere dönüştürüyoruz 🎨
+                  Biblo 3D Studio olarak, sevdiklerinizle paylaştığınız özel anları 3D baskı figürlere dönüştürüyoruz 🎨
                   </p>
                   <p className="text-gray-300 leading-relaxed">
                     Ailenizi, dostlarınızı ya da en sevdiğiniz kareyi ölümsüzleştirin 👨‍👩‍👧‍👦
@@ -199,7 +199,7 @@ export default function Products() {
                     Kişiye Özel 3D Figürler
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Filamentbiblo3D olarak, sevdiklerinizle paylaştığınız özel anları 3D baskı figürlere dönüştürüyoruz 🎨
+                  Biblo 3D Studio olarak, sevdiklerinizle paylaştığınız özel anları 3D baskı figürlere dönüştürüyoruz 🎨
                   </p>
                   <p className="text-gray-300 leading-relaxed">
                     Ailenizi, dostlarınızı ya da en sevdiğiniz kareyi ölümsüzleştirin 👨‍👩‍👧‍👦

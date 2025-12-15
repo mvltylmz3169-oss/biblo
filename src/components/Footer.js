@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold text-xl px-3 py-1 rounded-lg">
-                Filamentbiblo3D
+                Biblo 3D Studio
               </div>
             </div>
             <p className="text-gray-400 text-sm">
@@ -115,7 +115,7 @@ export default function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm">
-              © 2024 Filamentbiblo3D. Tüm hakları saklıdır.
+              © 2024 Biblo 3D Studio. Tüm hakları saklıdır.
             </p>
             <div className="flex space-x-6 text-sm">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
