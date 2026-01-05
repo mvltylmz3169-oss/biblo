@@ -1,5 +1,3 @@
-"use client";
-
 import {
   collection,
   doc,
@@ -18,8 +16,23 @@ import {
 } from "firebase/storage";
 import app from "./firebase";
 
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Lazy initialization to avoid SSR issues on older Android devices
+let db = null;
+let storage = null;
+
+const getDb = () => {
+  if (!db) {
+    db = getFirestore(app);
+  }
+  return db;
+};
+
+const getStorageInstance = () => {
+  if (!storage) {
+    storage = getStorage(app);
+  }
+  return storage;
+};
 
 const ORDERS_COLLECTION = "orders";
 
@@ -32,7 +45,7 @@ const sanitizeFileName = (fileName) =>
 const uploadFile = async (file, storagePath) => {
   if (!file) return null;
 
-  const storageRef = ref(storage, storagePath);
+  const storageRef = ref(getStorageInstance(), storagePath);
   await uploadBytes(storageRef, file, {
     contentType: file.type,
   });
@@ -56,7 +69,7 @@ const createOrderDocument = async ({
   notes,
   imageFile,
 }) => {
-  const ordersRef = collection(db, ORDERS_COLLECTION);
+  const ordersRef = collection(getDb(), ORDERS_COLLECTION);
   const orderRef = doc(ordersRef);
   const orderId = orderRef.id;
   const createdAt = new Date().toISOString();
@@ -187,14 +200,14 @@ export const uploadOrderReceipt = async (orderId, receiptFile) => {
     updatedAt,
   };
 
-  await updateDoc(doc(db, ORDERS_COLLECTION, orderId), updates);
+  await updateDoc(doc(getDb(), ORDERS_COLLECTION, orderId), updates);
 
   return updates;
 };
 
 export const subscribeToOrders = (callback, onError = console.error) => {
   const q = query(
-    collection(db, ORDERS_COLLECTION),
+    collection(getDb(), ORDERS_COLLECTION),
     orderBy("createdAt", "desc")
   );
 
@@ -221,7 +234,7 @@ export const updateOrderStatus = async (orderId, updates) => {
     updatedAt: new Date().toISOString(),
   };
 
-  await updateDoc(doc(db, ORDERS_COLLECTION, orderId), payload);
+  await updateDoc(doc(getDb(), ORDERS_COLLECTION, orderId), payload);
 
   return payload;
 };

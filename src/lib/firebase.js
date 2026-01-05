@@ -1,9 +1,9 @@
 // Client-side Firebase Configuration
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
-// Firebase Config - direkt tanımlandı
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDclw_LtgJdCHlMjosSgn7uuV5QhRKhGfk",
   authDomain: "biblo-ffa4b.firebaseapp.com",
@@ -14,25 +14,29 @@ const firebaseConfig = {
   measurementId: "G-P0NJ6CP2YE"
 };
 
-
-// Initialize Firebase (only once)
+// Initialize Firebase only once - with try/catch for older Android devices
 let app;
 let analytics = null;
 
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-  
-  // Initialize Analytics (only in browser and if supported)
-  if (typeof window !== "undefined") {
-    isSupported().then((supported) => {
+try {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+} catch (error) {
+  console.error("Firebase initialization error:", error);
+  // Fallback: try to get existing app or create new one
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig, "biblo-app");
+}
+
+// Initialize Analytics (only in browser and if supported)
+if (typeof window !== "undefined") {
+  isSupported()
+    .then((supported) => {
       if (supported) {
         analytics = getAnalytics(app);
-        console.log("🔥 Firebase Analytics aktif!");
       }
+    })
+    .catch(() => {
+      // Analytics not supported on this device, silently ignore
     });
-  }
-} else {
-  app = getApps()[0];
 }
 
 // Initialize Firebase Storage
